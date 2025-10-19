@@ -1,33 +1,57 @@
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Client {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException { // throws exception required for threads
 
-        final String HOST_NAME = "localhost";
-        final int PORT_NUM = 6868;
-        final String[] commands = {
-                "date and time", "uptime", "memory use",
-                "netstat", "current users", "running processes"
-        };
+        Scanner scanner = new Scanner(System.in);
 
-        int numThreads = commands.length;
+        System.out.println("Enter the server hostname: ");
+        String hostname = scanner.nextLine();
+
+        System.out.println("Enter the server port number: ");
+        int portNumber = scanner.nextInt();
+
+        System.out.println("Select a command: ");
+        System.out.println("1: date and time ");
+        System.out.println("2: uptime ");
+        System.out.println("3: memory use ");
+        System.out.println("4: netstat ");
+        System.out.println("5: current users ");
+        System.out.println("6: running processes ");
+        int commandNumber = scanner.nextInt();
+
+        System.out.println("Enter the number of client requets to generate: ");
+        int numClientRequests = scanner.nextInt();
+
+        int numThreads = numClientRequests;
         Thread[] threads = new Thread[numThreads];
-        double[] turnaroundTimes = new double[numThreads]; // store each TAT in array to do math later
+        double[] turnaroundTimes = new double[numThreads]; // store each TAT in array
+        String[] serverResponses = new String[numClientRequests]; // store server responses
 
-        System.out.println("Connecting to server " + HOST_NAME + " on port " + PORT_NUM);
+        System.out.println("Connecting to server " + hostname + " on port " + portNumber);
 
         // Create a thread for each command
-        for (int i = 0; i < numThreads; i++) { // creates a new thread object for each command
+        for (int i = 0; i < numClientRequests; i++) { // creates a new thread object for each client request
             int index = i;
             threads[i] = new Thread(() -> {
                 try {
                     double startTime = System.currentTimeMillis();
 
-                    Socket socket = new Socket(HOST_NAME, PORT_NUM);
+                    Socket socket = new Socket(hostname, portNumber);
                     PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
-                    output.println(commands[index]);
+                    output.println(getCommandToSendToServerFromClientInput(commandNumber));
+
+                    // Read server response
+                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = input.readLine()) != null) {
+                        response.append(line).append("\n");
+                    }
+                    serverResponses[index] = response.toString().trim();
 
                     double endTime = System.currentTimeMillis();
                     turnaroundTimes[index] = endTime - startTime;
@@ -35,8 +59,8 @@ public class Client {
                     socket.close();
 
                 } catch (IOException e) {
-                    System.out.println("Command \"" + commands[index] + "\" failed: " + e.getMessage());
-                    turnaroundTimes[index] = -1;
+                    System.out.println("Command \"" + getCommandToSendToServerFromClientInput(commandNumber)
+                            + "\" failed: " + e.getMessage());
                 }
             });
             threads[i].start(); // now run the actual thread
@@ -47,17 +71,48 @@ public class Client {
             t.join();
         }
 
-        // Print results
-        long totalTime = 0;
+        double totalTurnaroundTime = 0;
         System.out.println("\n===== SUMMARY =====");
-        for (int i = 0; i < numThreads; i++) {
-            System.out.println("Command \"" + commands[i] + "\" Turn-around Time: " + turnaroundTimes[i] + " ms");
-            if (turnaroundTimes[i] > 0)
-                totalTime += turnaroundTimes[i];
+        for (int i = 0; i < numClientRequests; i++) {
+            System.out.println("Request " + (i + 1) + " Turn-around Time: " + turnaroundTimes[i] + " ms");
+            System.out.println("Server Response:\n" + serverResponses[i]);
+            System.out.println("-------------------------");
+            if (turnaroundTimes[i] > 0) {
+                totalTurnaroundTime += turnaroundTimes[i];
+            }
         }
 
-        double averageTime = totalTime / numThreads;
-        System.out.println("Total Turn-around Time: " + totalTime + " ms");
-        System.out.println("Average Turn-around Time: " + averageTime + " ms");
+        double averageTurnaroundTime = totalTurnaroundTime / numClientRequests;
+        System.out.println("Total Turn-around Time: " + totalTurnaroundTime + " ms");
+        System.out.println("Average Turn-around Time: " + averageTurnaroundTime + " ms");
+
     }
+
+    private static String getCommandToSendToServerFromClientInput(int comanndNum) {
+        String output = "Invalid Command";
+        switch (comanndNum) {
+            case 1:
+                output = "date_time";
+                break;
+            case 2:
+                output = "uptime";
+                break;
+            case 3:
+                output = "memory_use";
+                break;
+            case 4:
+                output = "netstat";
+                break;
+            case 5:
+                output = "current_users";
+                break;
+            case 6:
+                output = "running_processes";
+                break;
+            default:
+                break;
+        }
+        return output;
+    }
+
 }
