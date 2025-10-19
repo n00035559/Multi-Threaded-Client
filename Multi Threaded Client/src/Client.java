@@ -88,29 +88,18 @@ public class Client {
 
     }
 
+    // Map client input to server command
     private static String getCommandToSendToServerFromClientInput(int comanndNum) {
         String output = "Invalid Command";
         switch (comanndNum) {
-            case 1:
-                output = "date_time";
-                break;
-            case 2:
-                output = "uptime";
-                break;
-            case 3:
-                output = "memory_use";
-                break;
-            case 4:
-                output = "netstat";
-                break;
-            case 5:
-                output = "current_users";
-                break;
-            case 6:
-                output = "running_processes";
-                break;
-            default:
-                break;
+            case 1 -> output = "date_time";
+            case 2 -> output = "uptime";
+            case 3 -> output = "memory_use";
+            case 4 -> output = "netstat";
+            case 5 -> output = "current_users";
+            case 6 -> output = "running_processes";
+            default -> {
+            }
         }
         return output;
     }
