@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Client {
@@ -11,20 +12,9 @@ public class Client {
         System.out.println("Enter the server hostname: ");
         String hostname = scanner.nextLine();
 
-        System.out.println("Enter the server port number: ");
-        int portNumber = scanner.nextInt();
-
-        System.out.println("Select a command: ");
-        System.out.println("1: date and time ");
-        System.out.println("2: uptime ");
-        System.out.println("3: memory use ");
-        System.out.println("4: netstat ");
-        System.out.println("5: current users ");
-        System.out.println("6: running processes ");
-        int commandNumber = scanner.nextInt();
-
-        System.out.println("Enter the number of client requets to generate: ");
-        int numClientRequests = scanner.nextInt();
+        int portNumber = getPortNumber();
+        int commandNumber = getClientInputForCommand();
+        int numClientRequests = getNumberOfClientRequests();
 
         int numThreads = numClientRequests;
         Thread[] threads = new Thread[numThreads];
@@ -88,7 +78,63 @@ public class Client {
 
     }
 
-    // Map client input to server command
+    /****** Helper Functions *******/
+
+    public static int getPortNumber() {
+        System.out.println("Enter the server port number: ");
+
+        Scanner _scanner = new Scanner(System.in);
+        int _portNumber = _scanner.nextInt();
+
+        if (_portNumber < 1025 || _portNumber > 4998) {
+            System.out.println("Invalid Port");
+            System.exit(1);
+        }
+        return _portNumber;
+    }
+
+    public static int getClientInputForCommand() {
+        System.out.println("Select a command: ");
+        System.out.println("1: date and time ");
+        System.out.println("2: uptime ");
+        System.out.println("3: memory use ");
+        System.out.println("4: netstat ");
+        System.out.println("5: current users ");
+        System.out.println("6: running processes ");
+
+        Scanner _scanner = new Scanner(System.in);
+        int _commandNumber = _scanner.nextInt();
+
+        if (_commandNumber < 1 || _commandNumber > 6) {
+            System.out.println("Invalid Selection");
+            System.exit(1);
+        }
+        return _commandNumber;
+    }
+
+    private static int getNumberOfClientRequests() {
+        int[] _numRequestOptions = new int[] { 1, 5, 10, 15, 20, 25 };
+        System.out.println("Enter the number of client requets to generate: ");
+        System.out.println(Arrays.toString(_numRequestOptions));
+        boolean isValidClientRequest = false;
+
+        Scanner _scanner = new Scanner(System.in);
+        int _numClientRequests = _scanner.nextInt();
+
+        for (int option : _numRequestOptions) {
+            if (option == _numClientRequests) {
+                isValidClientRequest = true;
+                break;
+            }
+        }
+
+        if (!isValidClientRequest) {
+            System.out.println("Invalid selection");
+            System.exit(1);
+        }
+        return _numClientRequests;
+    }
+
     private static String getCommandToSendToServerFromClientInput(int comanndNum) {
         String output = "Invalid Command";
         switch (comanndNum) {
@@ -103,5 +149,4 @@ public class Client {
         }
         return output;
     }
-
 }
