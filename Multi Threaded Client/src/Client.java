@@ -12,14 +12,16 @@ public class Client {
         System.out.println("Enter the server hostname: ");
         String hostname = scanner.nextLine();
 
-        int portNumber = getPortNumber();
-        int commandNumber = getClientInputForCommand();
-        int numClientRequests = getNumberOfClientRequests();
+        int portNumber = getPortNumber(scanner);
+        int commandNumber = getClientInputForCommand(scanner);
+        int numClientRequests = getNumberOfClientRequests(scanner);
 
         int numThreads = numClientRequests;
         Thread[] threads = new Thread[numThreads];
         double[] turnaroundTimes = new double[numThreads]; // store each TAT in array
         String[] serverResponses = new String[numClientRequests]; // store server responses
+
+        scanner.close();
 
         System.out.println("Connecting to server " + hostname + " on port " + portNumber);
 
@@ -80,10 +82,10 @@ public class Client {
 
     /****** Helper Functions *******/
 
-    public static int getPortNumber() {
+    public static int getPortNumber(Scanner s) {
         System.out.println("Enter the server port number: ");
 
-        Scanner _scanner = new Scanner(System.in);
+        Scanner _scanner = s;
         int _portNumber = _scanner.nextInt();
 
         if (_portNumber < 1025 || _portNumber > 4998) {
@@ -93,7 +95,7 @@ public class Client {
         return _portNumber;
     }
 
-    public static int getClientInputForCommand() {
+    public static int getClientInputForCommand(Scanner s) {
         System.out.println("Select a command: ");
         System.out.println("1: date and time ");
         System.out.println("2: uptime ");
@@ -102,7 +104,7 @@ public class Client {
         System.out.println("5: current users ");
         System.out.println("6: running processes ");
 
-        Scanner _scanner = new Scanner(System.in);
+        Scanner _scanner = s;
         int _commandNumber = _scanner.nextInt();
 
         if (_commandNumber < 1 || _commandNumber > 6) {
@@ -112,13 +114,13 @@ public class Client {
         return _commandNumber;
     }
 
-    private static int getNumberOfClientRequests() {
+    private static int getNumberOfClientRequests(Scanner s) {
         int[] _numRequestOptions = new int[] { 1, 5, 10, 15, 20, 25 };
         System.out.println("Enter the number of client requets to generate: ");
         System.out.println(Arrays.toString(_numRequestOptions));
         boolean isValidClientRequest = false;
 
-        Scanner _scanner = new Scanner(System.in);
+        Scanner _scanner = s;
         int _numClientRequests = _scanner.nextInt();
 
         for (int option : _numRequestOptions) {
