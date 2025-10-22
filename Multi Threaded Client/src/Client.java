@@ -16,9 +16,8 @@ public class Client {
         int commandNumber = getClientInputForCommand(scanner);
         int numClientRequests = getNumberOfClientRequests(scanner);
 
-        int numThreads = numClientRequests;
-        Thread[] threads = new Thread[numThreads];
-        double[] turnaroundTimes = new double[numThreads]; // store each TAT in array
+        Thread[] threads = new Thread[numClientRequests];
+        double[] turnaroundTimes = new double[numClientRequests]; // store each TAT in array
         String[] serverResponses = new String[numClientRequests]; // store server responses
 
         scanner.close();
