@@ -2,6 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Client {
 
@@ -47,6 +49,7 @@ public class Client {
                     double endTime = System.currentTimeMillis();
                     turnaroundTimes[index] = endTime - startTime;
 
+                    logOutput(index, commandNumber, turnaroundTimes[index], serverResponses[index]);
                     socket.close();
 
                 } catch (IOException e) {
@@ -136,6 +139,20 @@ public class Client {
         return _numClientRequests;
     }
 
+    private static void logOutput(int index, int command, double turnaroundTime, String serverResponse)
+            throws IOException {
+        System.out.println("logging");
+        FileWriter fw = new FileWriter("log.txt", true);
+
+        fw.write("Request " + (index + 1) + "\n");
+        fw.write("Command: " + getCommandToSendToServerFromClientInput(command) + "\n");
+        fw.write("Turn-around Time: " + turnaroundTime + " ms\n");
+        fw.write("Server Response:\n" + serverResponse + "\n");
+        fw.write("----------------------------------------\n");
+
+        fw.close();
+    }
+
     private static String getCommandToSendToServerFromClientInput(int comanndNum) {
         String output = "Invalid Command";
         switch (comanndNum) {
@@ -150,4 +167,5 @@ public class Client {
         }
         return output;
     }
+
 }
